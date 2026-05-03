@@ -46,10 +46,10 @@ describe('Indian Election Assistant - Core Functionality', () => {
       const maliciousInput = '<script>alert("XSS")</script>';
       const sanitized = utils.sanitizeHTML(maliciousInput);
       expect(sanitized).not.toContain('<script>');
-      expect(sanitized).toBe('<script>alert("XSS")</script>');
+      expect(sanitized).toBe('&lt;script&gt;alert("XSS")&lt;/script&gt;');
     });
 
-    it('should debounce function calls', (done) => {
+    it('should debounce function calls', async () => {
       const utils = {
         debounce(func, wait) {
           let timeout;
@@ -73,10 +73,8 @@ describe('Indian Election Assistant - Core Functionality', () => {
       debouncedFn();
       debouncedFn();
 
-      setTimeout(() => {
-        expect(callCount).toBe(1);
-        done();
-      }, 150);
+      await new Promise(resolve => setTimeout(resolve, 150));
+      expect(callCount).toBe(1);
     });
   });
 
@@ -84,10 +82,10 @@ describe('Indian Election Assistant - Core Functionality', () => {
     it('should have valid election dates', () => {
       const electionDates = [
         {
-          date: "January 15, 2027",
-          title: "Voter registration verification",
-          icon: "how_to_reg",
-          text: "Verify your name in the electoral roll",
+          date: 'January 15, 2027',
+          title: 'Voter registration verification',
+          icon: 'how_to_reg',
+          text: 'Verify your name in the electoral roll',
           urgent: false
         }
       ];
@@ -103,10 +101,10 @@ describe('Indian Election Assistant - Core Functionality', () => {
     it('should have valid guide steps', () => {
       const guideSteps = [
         {
-          title: "Verify EPIC card",
-          summary: "Ensure you have a valid Voter ID",
-          details: "Your EPIC card is your primary voting document",
-          checklist: ["Check electoral roll", "Verify details"]
+          title: 'Verify EPIC card',
+          summary: 'Ensure you have a valid Voter ID',
+          details: 'Your EPIC card is your primary voting document',
+          checklist: ['Check electoral roll', 'Verify details']
         }
       ];
 
@@ -126,10 +124,10 @@ describe('Indian Election Assistant - Core Functionality', () => {
 
       const quizQuestions = [
         {
-          question: "What is the minimum age to vote?",
-          options: ["16", "18", "21", "25"],
+          question: 'What is the minimum age to vote?',
+          options: ['16', '18', '21', '25'],
           correct: 1,
-          explanation: "Minimum voting age is 18"
+          explanation: 'Minimum voting age is 18'
         }
       ];
 
@@ -160,10 +158,10 @@ describe('Indian Election Assistant - Core Functionality', () => {
 
     it('should validate quiz question structure', () => {
       const question = {
-        question: "What does EPIC stand for?",
-        options: ["A", "B", "C", "D"],
+        question: 'What does EPIC stand for?',
+        options: ['A', 'B', 'C', 'D'],
         correct: 1,
-        explanation: "EPIC stands for Electors Photo Identity Card"
+        explanation: 'EPIC stands for Electors Photo Identity Card'
       };
 
       expect(question.options).toHaveLength(4);
@@ -176,46 +174,46 @@ describe('Indian Election Assistant - Core Functionality', () => {
   describe('Assistant Question Answering', () => {
     const answerQuestion = (question) => {
       const lower = question.toLowerCase();
-      
-      if (lower.includes("epic") || lower.includes("voter id")) {
-        return "To get an EPIC card, visit nvsp.in";
+
+      if (lower.includes('epic') || lower.includes('voter id')) {
+        return 'To get an EPIC card, visit nvsp.in';
       }
-      
-      if (lower.includes("register")) {
-        return "To register as a voter, you must be 18 years or older";
+
+      if (lower.includes('register')) {
+        return 'To register as a voter, you must be 18 years or older';
       }
-      
-      return "I can help with voter registration and more";
+
+      return 'I can help with voter registration and more';
     };
 
     it('should answer EPIC card questions', () => {
-      const response = answerQuestion("How do I get an EPIC card?");
-      expect(response).toContain("EPIC");
-      expect(response).toContain("nvsp.in");
+      const response = answerQuestion('How do I get an EPIC card?');
+      expect(response).toContain('EPIC');
+      expect(response).toContain('nvsp.in');
     });
 
     it('should answer registration questions', () => {
-      const response = answerQuestion("How do I register to vote?");
-      expect(response).toContain("register");
-      expect(response).toContain("18 years");
+      const response = answerQuestion('How do I register to vote?');
+      expect(response).toContain('register');
+      expect(response).toContain('18 years');
     });
 
     it('should provide default response for unknown questions', () => {
-      const response = answerQuestion("Random question");
-      expect(response).toContain("help");
+      const response = answerQuestion('Random question');
+      expect(response).toContain('help');
     });
   });
 
   describe('Polling Place Data', () => {
     it('should have valid polling place structure', () => {
       const pollingPlace = {
-        name: "Government Primary School",
-        address: "Sector 15, Rohini, New Delhi - 110085",
+        name: 'Government Primary School',
+        address: 'Sector 15, Rohini, New Delhi - 110085',
         lat: 28.7041,
         lng: 77.1025,
-        distance: "1.2 km",
-        wait: "15-20 mins",
-        constituency: "North West Delhi"
+        distance: '1.2 km',
+        wait: '15-20 mins',
+        constituency: 'North West Delhi'
       };
 
       expect(pollingPlace.name).toBeTruthy();
@@ -244,22 +242,22 @@ describe('Indian Election Assistant - Core Functionality', () => {
   describe('Reminder Management', () => {
     it('should add reminders correctly', () => {
       const reminders = new Set();
-      
-      reminders.add("Polling Day - April 15, 2027");
-      reminders.add("Registration Deadline");
-      reminders.add("Polling Day - April 15, 2027"); // Duplicate
+
+      reminders.add('Polling Day - April 15, 2027');
+      reminders.add('Registration Deadline');
+      reminders.add('Polling Day - April 15, 2027'); // Duplicate
 
       expect(reminders.size).toBe(2); // Set prevents duplicates
-      expect(reminders.has("Polling Day - April 15, 2027")).toBe(true);
+      expect(reminders.has('Polling Day - April 15, 2027')).toBe(true);
     });
 
     it('should render reminders list', () => {
-      const reminders = new Set(["Reminder 1", "Reminder 2"]);
+      const reminders = new Set(['Reminder 1', 'Reminder 2']);
       const reminderList = document.getElementById('reminderList');
-      
+
       reminderList.innerHTML = [...reminders]
         .map(item => `<li>${item}</li>`)
-        .join("");
+        .join('');
 
       expect(reminderList.children.length).toBe(2);
     });
@@ -275,9 +273,9 @@ describe('Indian Election Assistant - Core Functionality', () => {
     });
 
     it('should validate hash navigation', () => {
-      const validViews = ["home", "timeline", "guide", "quiz", "search"];
-      const hash = "#quiz";
-      const viewName = hash.replace("#", "");
+      const validViews = ['home', 'timeline', 'guide', 'quiz', 'search'];
+      const hash = '#quiz';
+      const viewName = hash.replace('#', '');
 
       expect(validViews.includes(viewName)).toBe(true);
     });
@@ -286,12 +284,12 @@ describe('Indian Election Assistant - Core Functionality', () => {
   describe('Search Functionality', () => {
     it('should find polling place by city name', () => {
       const pollingPlaces = {
-        delhi: { name: "School Delhi" },
-        mumbai: { name: "School Mumbai" }
+        delhi: { name: 'School Delhi' },
+        mumbai: { name: 'School Mumbai' }
       };
 
-      const searchValue = "Mumbai";
-      const searchKey = Object.keys(pollingPlaces).find(key => 
+      const searchValue = 'Mumbai';
+      const searchKey = Object.keys(pollingPlaces).find(key =>
         searchValue.toLowerCase().includes(key)
       );
 
@@ -301,14 +299,14 @@ describe('Indian Election Assistant - Core Functionality', () => {
 
     it('should default to Delhi if no match found', () => {
       const pollingPlaces = {
-        delhi: { name: "School Delhi" },
-        mumbai: { name: "School Mumbai" }
+        delhi: { name: 'School Delhi' },
+        mumbai: { name: 'School Mumbai' }
       };
 
-      const searchValue = "Unknown City";
-      const searchKey = Object.keys(pollingPlaces).find(key => 
+      const searchValue = 'Unknown City';
+      const searchKey = Object.keys(pollingPlaces).find(key =>
         searchValue.toLowerCase().includes(key)
-      ) || "delhi";
+      ) || 'delhi';
 
       expect(searchKey).toBe('delhi');
     });
@@ -316,23 +314,23 @@ describe('Indian Election Assistant - Core Functionality', () => {
 
   describe('Data Validation', () => {
     it('should validate election date format', () => {
-      const dateString = "January 15, 2027";
+      const dateString = 'January 15, 2027';
       const date = new Date(dateString);
-      
+
       expect(date).toBeInstanceOf(Date);
       expect(date.toString()).not.toBe('Invalid Date');
     });
 
     it('should validate helpline number format', () => {
       const helpline = '1950';
-      
+
       expect(helpline).toMatch(/^\d{4}$/);
       expect(parseInt(helpline)).toBe(1950);
     });
 
     it('should validate PIN code format', () => {
       const pinCode = '110085';
-      
+
       expect(pinCode).toMatch(/^\d{6}$/);
       expect(pinCode.length).toBe(6);
     });
@@ -342,14 +340,14 @@ describe('Indian Election Assistant - Core Functionality', () => {
     it('should have proper ARIA labels', () => {
       const button = document.createElement('button');
       button.setAttribute('aria-label', 'Search for election information');
-      
+
       expect(button.getAttribute('aria-label')).toBeTruthy();
       expect(button.getAttribute('aria-label')).toContain('Search');
     });
 
     it('should support keyboard navigation', () => {
       const event = new KeyboardEvent('keydown', { key: 'Escape' });
-      
+
       expect(event.key).toBe('Escape');
       expect(event.type).toBe('keydown');
     });
@@ -365,16 +363,16 @@ describe('Indian Election Assistant - Core Functionality', () => {
 
       const maliciousInput = '<img src=x onerror=alert(1)>';
       const sanitized = sanitizeHTML(maliciousInput);
-      
-      expect(sanitized).not.toContain('onerror');
+
       expect(sanitized).not.toContain('<img');
+      expect(sanitized).toBe('&lt;img src=x onerror=alert(1)&gt;');
     });
 
     it('should validate URL parameters', () => {
       const validateURL = (url) => {
         try {
-          new URL(url);
-          return true;
+          const parsed = new URL(url);
+          return parsed.protocol === 'http:' || parsed.protocol === 'https:';
         } catch {
           return false;
         }
@@ -401,7 +399,7 @@ describe('Indian Election Assistant - Core Functionality', () => {
 
     it('should lazy load map only when needed', () => {
       let mapInitialized = false;
-      
+
       const initMap = () => {
         mapInitialized = true;
       };
@@ -436,17 +434,17 @@ describe('Integration Tests', () => {
   });
 
   it('should handle search to map flow', () => {
-    const searchValue = "Delhi";
+    const searchValue = 'Delhi';
     const pollingPlaces = {
       delhi: {
-        name: "School",
+        name: 'School',
         lat: 28.7041,
         lng: 77.1025
       }
     };
 
     const place = pollingPlaces.delhi;
-    
+
     expect(place).toBeDefined();
     expect(place.lat).toBeTruthy();
     expect(place.lng).toBeTruthy();

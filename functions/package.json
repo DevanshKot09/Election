@@ -1,0 +1,35 @@
+{
+  "name": "indian-election-assistant-functions",
+  "version": "2.0.0",
+  "description": "Google Cloud Functions for Indian Election Assistant",
+  "main": "index.js",
+  "scripts": {
+    "deploy": "gcloud functions deploy",
+    "test": "jest",
+    "lint": "eslint ."
+  },
+  "keywords": [
+    "google-cloud-functions",
+    "indian-elections",
+    "bigquery",
+    "natural-language-api",
+    "firestore"
+  ],
+  "author": "Indian Election Assistant Team",
+  "license": "MIT",
+  "dependencies": {
+    "@google-cloud/bigquery": "^7.3.0",
+    "@google-cloud/firestore": "^7.1.0",
+    "@google-cloud/functions-framework": "^3.3.0",
+    "@google-cloud/language": "^6.2.0",
+    "@google-cloud/logging": "^11.0.0",
+    "@google-cloud/storage": "^7.7.0"
+  },
+  "devDependencies": {
+    "eslint": "^8.55.0",
+    "jest": "^29.7.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

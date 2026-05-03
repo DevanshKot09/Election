@@ -18,7 +18,7 @@ const STATIC_ASSETS = [
 // Install event - cache static assets
 self.addEventListener('install', (event) => {
   console.log('[Service Worker] Installing...');
-  
+
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then((cache) => {
@@ -32,7 +32,7 @@ self.addEventListener('install', (event) => {
 // Activate event - clean up old caches
 self.addEventListener('activate', (event) => {
   console.log('[Service Worker] Activating...');
-  
+
   event.waitUntil(
     caches.keys()
       .then((cacheNames) => {
@@ -59,7 +59,7 @@ self.addEventListener('fetch', (event) => {
   // Skip cross-origin requests
   if (url.origin !== location.origin) {
     // Allow Google services
-    if (url.origin.includes('googleapis.com') || 
+    if (url.origin.includes('googleapis.com') ||
         url.origin.includes('gstatic.com') ||
         url.origin.includes('google-analytics.com') ||
         url.origin.includes('googletagmanager.com')) {
@@ -82,7 +82,7 @@ self.addEventListener('fetch', (event) => {
 async function cacheFirst(request) {
   const cache = await caches.open(CACHE_NAME);
   const cached = await cache.match(request);
-  
+
   if (cached) {
     console.log('[Service Worker] Serving from cache:', request.url);
     return cached;
@@ -90,23 +90,23 @@ async function cacheFirst(request) {
 
   try {
     const response = await fetch(request);
-    
+
     // Cache successful responses
     if (response.status === 200) {
       const runtimeCache = await caches.open(RUNTIME_CACHE);
       runtimeCache.put(request, response.clone());
     }
-    
+
     return response;
   } catch (error) {
     console.error('[Service Worker] Fetch failed:', error);
-    
+
     // Return offline page if available
     const offlinePage = await cache.match('/offline.html');
     if (offlinePage) {
       return offlinePage;
     }
-    
+
     // Return a basic offline response
     return new Response('Offline - Please check your internet connection', {
       status: 503,
@@ -122,24 +122,24 @@ async function cacheFirst(request) {
 async function networkFirst(request) {
   try {
     const response = await fetch(request);
-    
+
     // Cache successful responses
     if (response.status === 200) {
       const cache = await caches.open(RUNTIME_CACHE);
       cache.put(request, response.clone());
     }
-    
+
     return response;
   } catch (error) {
     console.error('[Service Worker] Network request failed:', error);
-    
+
     // Try to serve from cache
     const cached = await caches.match(request);
     if (cached) {
       console.log('[Service Worker] Serving from cache (fallback):', request.url);
       return cached;
     }
-    
+
     throw error;
   }
 }
@@ -149,7 +149,7 @@ self.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'SKIP_WAITING') {
     self.skipWaiting();
   }
-  
+
   if (event.data && event.data.type === 'CLEAR_CACHE') {
     event.waitUntil(
       caches.keys().then((cacheNames) => {
